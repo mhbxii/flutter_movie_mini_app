@@ -33,11 +33,16 @@ class AuthProvider with ChangeNotifier {
 
   // Login
   Future<bool> login(String email, String password) async {
+    await _authService.signOut(); // optional safety
+    await Future.delayed(const Duration(milliseconds: 200));
+
     _setLoading(true);
     _clearError();
 
     try {
       _currentUser = await _authService.signIn(email: email, password: password);
+      
+      notifyListeners();      // 👈 move this BEFORE _setLoading(false)
       _setLoading(false);
       return true;
     } on AuthException catch (e) {
@@ -90,6 +95,7 @@ class AuthProvider with ChangeNotifier {
       }
 
       _setLoading(false);
+      notifyListeners(); // 👈 missing
       return true;
     } on AuthException catch (e) {
       _errorMessage = e.message;
@@ -104,10 +110,10 @@ class AuthProvider with ChangeNotifier {
 
   // Logout
   Future<void> logout() async {
-    await _authService.signOut();
     _currentUser = null;
     _clearError();
-    notifyListeners();
+    notifyListeners();           // ⬅ refresh UI first
+    await _authService.signOut();
   }
 
   void _setLoading(bool value) {

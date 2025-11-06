@@ -28,6 +28,13 @@ class UserModel {
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data) {
+    DateTime _parseDate(dynamic value) {
+      if (value == null) return DateTime.now();
+      if (value is Timestamp) return value.toDate();
+      if (value is String) return DateTime.tryParse(value) ?? DateTime.now();
+      return DateTime.now();
+    }
+
     return UserModel(
       uid: data['uid'] ?? '',
       email: data['email'] ?? '',
@@ -37,11 +44,14 @@ class UserModel {
       photoUrl: data['photoUrl'],
       role: data['role'] ?? 'user',
       isActive: data['isActive'] ?? true,
-      favoriteMovies: List<String>.from(data['favoriteMovies'] ?? []),
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      favoriteMovies: List<String>.from(
+        (data['favoriteMovies'] ?? []).map((e) => e.toString()),
+      ),
+      createdAt: _parseDate(data['createdAt']),
+      updatedAt: _parseDate(data['updatedAt']),
     );
   }
+
 
   Map<String, dynamic> toMap() {
     return {

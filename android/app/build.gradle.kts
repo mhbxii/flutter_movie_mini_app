@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.mhb12x.movie_app"
+    namespace = "com.example.movie_app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

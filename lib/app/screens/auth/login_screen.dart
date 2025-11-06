@@ -34,11 +34,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Navigate based on role
+      // Navigate based on role - use pushNamedAndRemoveUntil to clear stack
       final isAdmin = authProvider.isAdmin;
-      Navigator.pushReplacementNamed(
+      Navigator.pushNamedAndRemoveUntil(
         context,
         isAdmin ? '/admin/home' : '/user/home',
+        (route) => false, // Remove all previous routes
       );
     } else {
       // Show error snackbar

@@ -54,19 +54,17 @@ class FirebaseAuthService {
         email: email,
         password: password,
       );
-
       final userData = await _firestore.getDocument('users', userCred.user!.uid);
       
       if (userData == null) throw UserNotFoundException();
 
       final user = UserModel.fromMap(userData);
-
+     
       // Check if user is disabled
       if (!user.isActive) {
         await _auth.signOut();
         throw UserDisabledException();
       }
-
       return user;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);

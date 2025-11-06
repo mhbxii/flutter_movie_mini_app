@@ -44,21 +44,6 @@ class _AppContentState extends State<AppContent> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
 
-    // Show loading while checking auth
-    if (authProvider.isLoading && authProvider.currentUser == null) {
-      return const MaterialApp(
-        home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
-      );
-    }
-
-    // Determine initial route
-    String initialRoute = AppRoutes.login;
-    if (authProvider.isLoggedIn) {
-      initialRoute = authProvider.isAdmin ? AppRoutes.adminHome : AppRoutes.userHome;
-    }
-
     return MaterialApp(
       title: 'Movie App',
       debugShowCheckedModeBanner: false,
@@ -66,13 +51,30 @@ class _AppContentState extends State<AppContent> {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      initialRoute: initialRoute,
       routes: {
         AppRoutes.login: (context) => const LoginScreen(),
         AppRoutes.signup: (context) => const SignupScreen(),
         AppRoutes.userHome: (context) => const UserHomeScreen(),
         AppRoutes.adminHome: (context) => const AdminHomeScreen(),
       },
+      home: _buildStartScreen(authProvider), // 👈 new
     );
   }
+
+  Widget _buildStartScreen(AuthProvider auth) {
+    if (auth.isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (auth.isLoggedIn) {
+      return auth.isAdmin
+          ? const AdminHomeScreen()
+          : const UserHomeScreen();
+    }
+
+    return const LoginScreen();
+  }
+
 }

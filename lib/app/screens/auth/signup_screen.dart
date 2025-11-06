@@ -62,8 +62,12 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!mounted) return;
 
     if (success) {
-      // Navigate to user home
-      Navigator.pushReplacementNamed(context, '/user/home');
+      // Navigate to user home - use pushNamedAndRemoveUntil to clear stack
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/user/home',
+        (route) => false, // Remove all previous routes
+      );
     } else {
       // Show error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
