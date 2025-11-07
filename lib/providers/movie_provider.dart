@@ -103,6 +103,17 @@ class MovieProvider with ChangeNotifier {
     }
   }
 
+  // Add this method to your MovieProvider class
+
+  // Get single favorite movie by ID (for matching screen)
+  Future<MovieModel?> getFavoriteMovieById(String movieId) async {
+    try {
+      return await _apiService.getMovieDetails(movieId);
+    } catch (e) {
+      return null;
+    }
+  }
+
   // Get favorite movies details
   Future<List<MovieModel>> getFavoriteMovies() async {
     if (_favoriteIds.isEmpty) return [];

@@ -13,19 +13,29 @@ class UserFavoritesScreen extends StatefulWidget {
 }
 
 class _UserFavoritesScreenState extends State<UserFavoritesScreen> {
+  late Future<List<MovieModel>> _favoriteMoviesFuture;
+
   @override
   void initState() {
     super.initState();
     _loadFavorites();
   }
 
-  Future<void> _loadFavorites() async {
+  void _loadFavorites() {
     final movieProvider = context.read<MovieProvider>();
     final authProvider = context.read<AuthProvider>();
     
     if (authProvider.currentUser != null) {
-      await movieProvider.loadFavorites(authProvider.currentUser!.uid);
+      movieProvider.loadFavorites(authProvider.currentUser!.uid);
+      _favoriteMoviesFuture = movieProvider.getFavoriteMovies();
     }
+  }
+
+  void _refreshFavorites() {
+    setState(() {
+      final movieProvider = context.read<MovieProvider>();
+      _favoriteMoviesFuture = movieProvider.getFavoriteMovies();
+    });
   }
 
   @override
@@ -70,14 +80,26 @@ class _UserFavoritesScreenState extends State<UserFavoritesScreen> {
               ),
             )
           : FutureBuilder<List<MovieModel>>(
-              future: movieProvider.getFavoriteMovies(),
+              future: _favoriteMoviesFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
                 if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('Failed to load favorites'));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Failed to load favorites'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _refreshFavorites,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 final favoriteMovies = snapshot.data!;
@@ -190,7 +212,7 @@ class _UserFavoritesScreenState extends State<UserFavoritesScreen> {
                                   );
 
                                   if (context.mounted && success) {
-                                    setState(() {}); // Refresh the list
+                                    _refreshFavorites(); // Refresh the list
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Removed from favorites'),
