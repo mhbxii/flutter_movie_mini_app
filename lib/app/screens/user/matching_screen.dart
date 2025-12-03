@@ -236,7 +236,7 @@ class _MatchCardState extends State<_MatchCard> {
           InkWell(
             onTap: () {
               setState(() => _isExpanded = !_isExpanded);
-              if (!_isExpanded) _loadCommonMovies();
+              if (_isExpanded) _loadCommonMovies();
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
